@@ -37,3 +37,27 @@ class HelloWorld(Scene):
         # Clean exit: fade everything out.
         self.play(FadeOut(greeting))
         self.wait(2)
+
+class HelloCircle(Scene):
+    """
+    Scene 2: A shape with property changes.
+
+    Here you learn that Manim objects have properties (color, size, position)
+    and you can animate changes to any of them using .animate
+    """
+    def construct(self):
+        # Create a circle. fill_opacity=0 means just the outline.
+        circle = Circle(radius=1.5, color=BLUE, stroke_width=4)
+
+        # Create() draws the shape by tracing its border.
+        self.play(Create(circle))
+        self.wait(1)
+
+        # .animate is the magic word. It turns any property change
+        # into a smooth animation.
+        #
+        # Without .animate:  circle.set_fill(BLUE, opacity=0.5)  → instant, no animation
+        # With .animate:     circle.animate.set_fill(...)         → smooth transition
+
+        self.play(circle.animate.set_fill(BLUE, opacity=0.5))
+        self.wait(1)
