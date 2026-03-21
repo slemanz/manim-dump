@@ -9,6 +9,8 @@ Run any of them with:
     manim -pql scene_hello.py HelloCombo
 """
 
+from turtle import right
+
 from manim import *
 
 class HelloWorld(Scene):
@@ -61,3 +63,22 @@ class HelloCircle(Scene):
 
         self.play(circle.animate.set_fill(BLUE, opacity=0.5))
         self.wait(1)
+
+        # Chain multiple changes in one .animate call:
+        self.play(
+            circle.animate
+            .set_color(GREEN)
+            .set_fill(GREEN, opacity=0.5)
+            .scale(0.6),
+            run_time=1.5
+        )
+        self.wait(0.5)
+        
+        # Move it around. shift() moves relative to current position.
+        self.play(circle.animate.shift(RIGHT*3))
+        self.play(circle.animate.shift(LEFT*6))
+        self.play(circle.animate.move_to(ORIGIN))
+
+        self.wait(2.5)
+        self.play(ShrinkToCenter(circle))
+
