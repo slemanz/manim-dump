@@ -9,7 +9,8 @@ Run any of them with:
     manim -pql scene_hello.py HelloCombo
 """
 
-from turtle import right
+from os import write
+from turtle import right, title
 
 from manim import *
 
@@ -82,3 +83,83 @@ class HelloCircle(Scene):
         self.wait(2.5)
         self.play(ShrinkToCenter(circle))
 
+class HelloCombo(Scene):
+    """
+    Scene 3: Multiple objects working together.
+
+    This is closer to what a real animation looks like:
+    title at the top, objects in the middle, annotations below.
+    """
+    def construct(self):
+        # --- Title ---
+        title = Text("Manim Basics", font_size=48, color=YELLOW)
+        title.to_edge(UP)
+        self.play(Write(title))
+
+        # --- Three shapes ---
+        circle = Circle(radius=0.8, color=BLUE, fill_opacity=0.4)
+        square = Square(side_length=1.4, color=RED, fill_opacity=0.4)
+        triangle = Triangle(color=GREEN, fill_opacity=0.4).scale(0.9)
+
+        # VGroup = "Visual Group". It lets you treat multiple objects as one.
+        shapes = VGroup(circle, square, triangle)
+
+        # arrange() places them in a row (or column) with spacing.
+        shapes.arrange(RIGHT, buff=1.2)
+
+        # Animate all three appearing at once with a stagger effect.
+        # lag_ratio controls the delay between each object starting.
+        self.play(
+            AnimationGroup(
+                *[GrowFromCenter(s) for s in shapes],
+                lag_ratio=0.3,  # each shape starts 0.3s after the previous
+            )
+        )
+        self.wait(0.5)
+
+        # --- Labels below each shape ---
+        labels = VGroup(
+            Text("Circle", font_size=24, color=BLUE),
+            Text("Square", font_size=24, color=RED),
+            Text("Triangle", font_size=24, color=GREEN),
+        )
+
+        for label, shape in zip(labels, shapes):
+            label.next_to(shape, DOWN, buff=0.4)
+        
+        self.play(*[FadeIn(l, shift=UP*0.3) for l in labels])
+        self.wait(1)
+
+        # --- Transform all shapes into circles ---
+        # ReplacementTransform removes the original and adds the target.
+        # Regular Transform keeps the original (it just looks like the target).
+        circles = VGroup(*[
+            Circle(radius=0.6, color=YELLOW, fill_opacity=0.5)
+            for _ in shapes
+        ])
+        for c, s in zip(circles, shapes):
+            c.move_to(s)
+
+        self.play(
+            *[ReplacementTransform(s, c) for s, c in zip(shapes, circles)],
+            *[FadeOut(l) for l in labels],
+        )
+        self.wait(0.5)
+
+        # --- Group everything and shrink to corner ---
+        # This is a common pattern: you'll often "park" objects in a
+        # corner to make room for the next section of your video.
+        everything = VGroup(circles, title)
+        self.play(
+            everything.animate.scale(0.3).to_corner(UL),
+            run_time=1.5,
+        )
+        self.wait(0.3)
+
+        # --- Final message ---
+        done = Text("Setup works. Let's build something real.", font_size=36)
+        self.play(Write(done))
+        self.wait(1)
+        self.play(*[FadeOut(m) for m in self.mobjects])
+
+        self.wait(1.5)
